@@ -12,7 +12,10 @@ import junit.framework.JUnit4TestAdapter;
 public class Main {
 
     public static void main(String[] args) {
-        junit.textui.TestRunner.run(suite());
+//        junit.textui.TestRunner.run(suite());
+
+        Menu menu = new Menu();
+        menu.mainMenu();
     }
 
     public static junit.framework.Test suite()
