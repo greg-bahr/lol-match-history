@@ -1,5 +1,8 @@
 package com.example.lolmatchhistory;
 
+import com.example.lolmatchhistory.api.RiotApi;
+import com.example.lolmatchhistory.api.user.User;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -28,8 +31,12 @@ public class Menu {
 
     private void findPlayer() {
         String name = inputOutput("Please enter a name: ");
-        user = new User(name);
-        viewProfileOptions();
+        try {
+            user = RiotApi.getInstance().getUserByUsername(name);
+            viewProfileOptions();
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     private void viewProfileOptions() {
