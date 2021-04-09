@@ -14,7 +14,7 @@ public class RiotApi {
     private static RiotApi instance;
 
     private final HttpClient httpClient;
-    private final String API_KEY = "RGAPI-c94be242-7ea1-407c-8922-e5c87793e744";
+    private final String API_KEY = "";
 
     private RiotApi() {
         httpClient = HttpClient.newHttpClient();
