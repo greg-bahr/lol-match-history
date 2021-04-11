@@ -7,14 +7,16 @@ import com.example.lolmatchhistory.api.user.UserRank;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
+import java.nio.charset.StandardCharsets;
 
 public class RiotApi {
     private static RiotApi instance;
 
     private final HttpClient httpClient;
-    private final String API_KEY = "";
+    private final String API_KEY = "RGAPI-6df2c128-cc61-433b-a974-ce5f3c4e21c2";
 
     private RiotApi() {
         httpClient = HttpClient.newHttpClient();
@@ -29,7 +31,7 @@ public class RiotApi {
 
     public User getUserByUsername(String username) throws IOException, InterruptedException {
         var endpoint = "https://na1.api.riotgames.com/lol/summoner/v4/summoners/by-name/%s?api_key=%s";
-        var request = HttpRequest.newBuilder(URI.create(String.format(endpoint, username, API_KEY)))
+        var request = HttpRequest.newBuilder(URI.create(String.format(endpoint, encodeName(username), API_KEY)))
                 .header("accept", "application/json")
                 .build();
         var response = httpClient.send(request, new JsonBodyHandler<>(User.class));
@@ -39,6 +41,10 @@ public class RiotApi {
         user.setRecentMatches(getLastMatchesByAccountId(user.getAccountId(), 10).getMatches());
 
         return user;
+    }
+
+    private String encodeName(String name) {
+        return URLEncoder.encode(name, StandardCharsets.UTF_8);
     }
 
     public UserRank getUserRankByAccountId(String accountId) throws IOException, InterruptedException {

@@ -41,11 +41,13 @@ public class Menu {
 
     private void viewProfileOptions() {
         try{
+            printDashLine();
             System.out.println("Profile for " + user.getName());
             System.out.println("1. Show player details");
             System.out.println("2. Show match history");
             System.out.println("3. View a match");
-            System.out.println("0. Go back\n");
+            System.out.println("0. Go back");
+            printDashLine();
             int userInput = Integer.parseInt(inputOutput("Please press an appropriate number option."));
             if (userInput >= 0 && userInput <=3) {
                 if (userInput == 1) showPlayerDetails();
@@ -90,4 +92,9 @@ public class Menu {
         }
         return returnString;
     }
+
+    private void printDashLine() {
+        System.out.println("--------------------------------------------------");
+    }
+
 }
