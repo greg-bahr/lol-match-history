@@ -8,18 +8,22 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class User {
     private String name;
     private String accountId;
+
+    private String summonerId;
+
     private int level;
     private UserRank rank;
     private Match[] recentMatches;
-
     public User(
             @JsonProperty("name") String name,
             @JsonProperty("accountId") String accountId,
+            @JsonProperty("id") String summonerId,
             @JsonProperty("summonerLevel") int level
     ) {
         this.name = name;
         this.accountId = accountId;
         this.level = level;
+        this.summonerId = summonerId;
     }
 
     public String getName() {
@@ -30,6 +34,8 @@ public class User {
         return accountId;
     }
 
+    public String getSummonerId() { return summonerId; }
+
     public int getLevel() {
         return level;
     }
@@ -37,6 +43,8 @@ public class User {
     public UserRank getRank() {
         return rank;
     }
+
+    public void setSummonerId(String summonerId) { this.summonerId = summonerId; }
 
     public void setRank(UserRank rank) {
         this.rank = rank;

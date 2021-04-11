@@ -13,7 +13,6 @@ public class Main {
 
     public static void main(String[] args) {
 //        junit.textui.TestRunner.run(suite());
-        System.out.println("In main");
         Menu menu = new Menu();
         menu.mainMenu();
     }

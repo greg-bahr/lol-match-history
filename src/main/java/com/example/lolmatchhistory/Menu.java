@@ -2,10 +2,12 @@ package com.example.lolmatchhistory;
 
 import com.example.lolmatchhistory.api.RiotApi;
 import com.example.lolmatchhistory.api.user.User;
+import com.example.lolmatchhistory.api.user.UserRank;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Objects;
 
 public class Menu {
     private User user;
@@ -33,7 +35,14 @@ public class Menu {
         String name = inputOutput("Please enter a name: ");
         try {
             user = RiotApi.getInstance().getUserByUsername(name);
-            viewProfileOptions();
+            if (Objects.isNull(user.getName())){
+                System.out.println("This name does not exists. Please try again.");
+                mainMenu();
+            }
+            else{
+                viewProfileOptions();
+            }
+
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
@@ -76,6 +85,11 @@ public class Menu {
 
     private void showPlayerDetails() {
         //TODO print player details
+        UserRank rank = user.getRank();
+        System.out.format("Name: %s%n", user.getName());
+        System.out.format("Level: %d%n", user.getLevel());
+        System.out.format("%d Wins\t%d Losses %n", rank.getWins(), rank.getLosses());
+        System.out.println(rank.getLeagueId());
         viewProfileOptions();
     }
 

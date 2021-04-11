@@ -31,25 +31,22 @@ public class RiotApi {
 
     public User getUserByUsername(String username) throws IOException, InterruptedException {
         var endpoint = "https://na1.api.riotgames.com/lol/summoner/v4/summoners/by-name/%s?api_key=%s";
-        var request = HttpRequest.newBuilder(URI.create(String.format(endpoint, encodeName(username), API_KEY)))
+        var request = HttpRequest.newBuilder(URI.create(String.format(endpoint, encodeStringURL(username), API_KEY)))
                 .header("accept", "application/json")
                 .build();
         var response = httpClient.send(request, new JsonBodyHandler<>(User.class));
 
         var user = response.body().get();
-        user.setRank(getUserRankByAccountId(user.getAccountId()));
+        user.setRank(getUserRankBySummonerId(user.getSummonerId()));
         user.setRecentMatches(getLastMatchesByAccountId(user.getAccountId(), 10).getMatches());
 
         return user;
     }
 
-    private String encodeName(String name) {
-        return URLEncoder.encode(name, StandardCharsets.UTF_8);
-    }
-
-    public UserRank getUserRankByAccountId(String accountId) throws IOException, InterruptedException {
+    public UserRank getUserRankBySummonerId(String summonerId) throws IOException, InterruptedException {
+        //FIXME the returned response is an array
         var endpoint = "https://na1.api.riotgames.com/lol/league/v4/entries/by-summoner/%s?api_key=%s";
-        var request = HttpRequest.newBuilder(URI.create(String.format(endpoint, accountId, API_KEY)))
+        var request = HttpRequest.newBuilder(URI.create(String.format(endpoint, summonerId, API_KEY)))
                 .header("accept", "application/json")
                 .build();
         var response = httpClient.send(request, new JsonBodyHandler<>(UserRank.class));
@@ -75,5 +72,9 @@ public class RiotApi {
         var response = httpClient.send(request, new JsonBodyHandler<>(DetailedMatch.class));
 
         return response.body().get();
+    }
+
+    private String encodeStringURL(String s) {
+        return URLEncoder.encode(s, StandardCharsets.UTF_8);
     }
 }
