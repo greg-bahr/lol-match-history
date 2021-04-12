@@ -5,21 +5,43 @@ import com.example.lolmatchhistory.api.match.MatchHistory;
 import com.example.lolmatchhistory.api.user.User;
 import com.example.lolmatchhistory.api.user.UserRank;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Scanner;
 
 public class RiotApi {
     private static RiotApi instance;
 
     private final HttpClient httpClient;
-    private final String API_KEY = "";
+    private String API_KEY;
 
     private RiotApi() {
         httpClient = HttpClient.newHttpClient();
+        API_KEY = getKeyFromFile("api_key.txt");
+    }
+
+    private String getKeyFromFile(String fileName) {
+        String api_key = "";
+        try {
+            File myObj = new File(fileName);
+            Scanner myReader = new Scanner(myObj);
+            while (myReader.hasNextLine()) {
+                api_key = myReader.nextLine();
+
+            }
+            myReader.close();
+        } catch (FileNotFoundException e) {
+            System.out.println("Cannot read api key file");
+            e.printStackTrace();
+        }
+        return api_key;
     }
 
     public static RiotApi getInstance() {
