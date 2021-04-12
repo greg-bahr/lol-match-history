@@ -1,9 +1,7 @@
 package com.example.lolmatchhistory;
 
 import com.example.lolmatchhistory.api.RiotApi;
-import com.example.lolmatchhistory.api.match.DetailedMatch;
-import com.example.lolmatchhistory.api.match.Match;
-import com.example.lolmatchhistory.api.match.MatchParticipantStats;
+import com.example.lolmatchhistory.api.match.*;
 import com.example.lolmatchhistory.api.user.User;
 import com.example.lolmatchhistory.api.user.UserRank;
 
@@ -12,11 +10,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Objects;
 
 public class Menu {
     private User user;
-    private RiotApi api;
+    private final RiotApi api;
 
     public Menu() {
         api = RiotApi.getInstance();
@@ -70,7 +69,7 @@ public class Menu {
             if (userInput >= 0 && userInput <=3) {
                 if (userInput == 1) showPlayerDetails();
                 if (userInput == 2) showMatchHistory();
-                if (userInput == 3) viewOneMatch();
+                if (userInput == 3) showOneMatchMenu();
                 if (userInput == 0) mainMenu();
             } else {
                 System.out.println("Please enter a number from 0 - 3");
@@ -82,23 +81,87 @@ public class Menu {
         }
     }
 
-    private void viewOneMatch() {
-        //TODO print 1 match details
-        viewProfileOptions();
+    private void showOneMatchMenu() {
+        int numRecentMatch = user.getRecentMatches().length;
+        try{
+            System.out.format("1 - %s. Choose a match %n", numRecentMatch);
+            System.out.println("0. Go back");
+            int userInput = Integer.parseInt(inputOutput("Please press an appropriate number option."));
+            if (userInput >= 0 && userInput <=numRecentMatch) {
+                if (userInput == 0)
+                    viewProfileOptions();
+                else{
+                    viewMatch(user.getRecentMatches()[userInput - 1]);
+                }
+            } else {
+                System.out.format("Please enter a number from 0 - %s%n", numRecentMatch);
+                showOneMatchMenu();
+            }
+        } catch (NumberFormatException e) {
+            System.out.format("Please enter a number from 0 - %s%n", numRecentMatch);
+            showOneMatchMenu();
+        }
+    }
+
+    private void viewMatch(Match match) {
+        DetailedMatch detailedMatch = match.getDetailedMatch();
+        String matchDate = getDateFromTimestamp(match.getTimestamp());
+        String duration = getMinuteFromSecond(detailedMatch.getGameDuration());
+        int playerChampionId = match.getChampion();
+        System.out.format("Match date: %s%n", matchDate);
+        System.out.format("Match duration: %s%n", duration);
+
+        System.out.format("%12s %15s %8s %8s %10s %5s %5s%n",
+                "", "Champion", "K/D/A", "Gold", "Damage", "CS", "VisionScore");
+        HashMap<Integer, String> teamStatus = new HashMap<>();
+        for (TeamStats team : detailedMatch.getTeams()){
+            if (team.getWin().equals("Win")){
+                teamStatus.put(team.getTeamId(), "Won");
+            }
+            else{
+                teamStatus.put(team.getTeamId(), "Lost");
+            }
+        }
+        System.out.format("Blue (%s)%n", teamStatus.get(100));
+        printParticipantsDetails(detailedMatch.getBlueParticipants(), playerChampionId);
+        System.out.format("Red (%s)%n", teamStatus.get(200));
+        printParticipantsDetails(detailedMatch.getRedParticipants(),playerChampionId);
+
+        printDashLine();
+        showOneMatchMenu();
+    }
+
+    private void printParticipantsDetails(MatchParticipant[] participants, int playerChampionId) {
+        for (MatchParticipant participant : participants){
+            MatchParticipantStats stats = participant.getStats();
+
+            String championName =api.getChampionFromId(participant.getChampionId());
+            if (playerChampionId==participant.getChampionId()){
+                championName += "(you)";
+            }
+            System.out.format("%12s %15s %8s %8s %10s %5s %5s%n", "",
+                    championName,
+                    stats.getKDA(),
+                    stats.getGoldEarned(),
+                    stats.getTotalDamageDealt(),
+                    stats.getTotalMinionsKilled(),
+                    stats.getVisionScore());
+        }
     }
 
     private void showMatchHistory() {
-        System.out.format("%16s %8s %15s %8s %10s%n",
+        String stringFormat = "%16s %8s %15s %8s %10s%n";
+        System.out.format(stringFormat,
                 "Date","Status","Champion","K/D/A", "Duration");
         for (Match match : user.getRecentMatches()){
             DetailedMatch detailedMatch = match.getDetailedMatch();
 
-            MatchParticipantStats playerStat = match.getParticipant().getStats();
+            MatchParticipantStats playerStat = match.getPlayer().getStats();
             String gameStatus = (playerStat.isWin()) ? "Won" : "Lost";
 
-            System.out.format("%16s %8s %15s %8s %10s%n",
+            System.out.format(stringFormat,
                     getDateFromTimestamp(match.getTimestamp()), gameStatus,
-                    api.getChampions().get(String.valueOf(match.getChampion())), playerStat.getKDA(),
+                    api.getChampionFromId(match.getChampion()), playerStat.getKDA(),
                     getMinuteFromSecond(detailedMatch.getGameDuration()));
         }
         viewProfileOptions();

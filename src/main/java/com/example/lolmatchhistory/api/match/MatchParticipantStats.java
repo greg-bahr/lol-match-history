@@ -10,12 +10,15 @@ public class MatchParticipantStats {
     private int champLevel;
     private long totalDamageTaken;
     private int deaths;
+    private int totalMinionsKilled;
     private long totalDamageDealt;
     private int wardsPlaced;
     private int kills;
     private int assists;
     private boolean win;
     private boolean firstBloodKill;
+
+    private long visionScore;
 
     public MatchParticipantStats(
             @JsonProperty("goldEarned") int goldEarned,
@@ -25,10 +28,12 @@ public class MatchParticipantStats {
             @JsonProperty("deaths") int deaths,
             @JsonProperty("totalDamageDealt") long totalDamageDealt,
             @JsonProperty("wardsPlaced") int wardsPlaced,
+            @JsonProperty("totalMinionsKilled") int totalMinionsKilled,
             @JsonProperty("kills") int kills,
             @JsonProperty("assists") int assists,
             @JsonProperty("win") boolean win,
-            @JsonProperty("firstBloodKill") boolean firstBloodKill
+            @JsonProperty("firstBloodKill") boolean firstBloodKill,
+            @JsonProperty("visionScore") long visionScore
     ) {
         this.goldEarned = goldEarned;
         this.totalPlayerScore = totalPlayerScore;
@@ -41,6 +46,12 @@ public class MatchParticipantStats {
         this.assists = assists;
         this.win = win;
         this.firstBloodKill = firstBloodKill;
+        this.totalMinionsKilled = totalMinionsKilled;
+        this.visionScore = visionScore;
+    }
+
+    public String getKDA() {
+        return String.format("%s/%s/%s", kills, deaths, assists);
     }
 
     public int getGoldEarned() {
@@ -87,7 +98,7 @@ public class MatchParticipantStats {
         return firstBloodKill;
     }
 
-    public String getKDA() {
-        return String.format("%s/%s/%s", kills, deaths, assists);
-    }
+    public int getTotalMinionsKilled() { return totalMinionsKilled; }
+
+    public long getVisionScore() { return visionScore; }
 }

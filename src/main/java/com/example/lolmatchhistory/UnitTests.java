@@ -43,4 +43,9 @@ public class UnitTests {
         String version = api.getLatestPatch();
         System.out.println(version);
     }
+
+    @Test
+    public void championIdNotExist(){
+        assertNull(api.getChampionFromId(10000));
+    }
 }

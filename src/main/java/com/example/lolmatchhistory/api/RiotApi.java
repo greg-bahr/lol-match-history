@@ -148,5 +148,7 @@ public class RiotApi {
 
     public String getLatestPatch() { return latestPatch; }
 
-    public HashMap<String, String> getChampions() { return champions; }
+    public String getChampionFromId(int id) {
+        return champions.get(String.valueOf(id));
+    }
 }

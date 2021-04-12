@@ -17,7 +17,7 @@ public class Match {
 
     private DetailedMatch detailedMatch;
 
-    private MatchParticipant participant;
+    private MatchParticipant player;
 
     public Match(
             @JsonProperty("gameId") long matchId,
@@ -32,12 +32,12 @@ public class Match {
         this.champion = champion;
         this.timestamp = timestamp;
         this.detailedMatch = RiotApi.getInstance().getDetailedMatchByMatchId(matchId);
-        this.participant = this.detailedMatch.getParticipantFromChampion(champion);
+        this.player = this.detailedMatch.getParticipantFromChampion(champion);
     }
 
     public DetailedMatch getDetailedMatch() { return detailedMatch; }
 
-    public MatchParticipant getParticipant() { return participant; }
+    public MatchParticipant getPlayer() { return player; }
 
     public long getMatchId() {
         return matchId;

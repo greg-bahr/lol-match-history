@@ -7,12 +7,17 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class DetailedMatch {
     private long matchId;
     private MatchParticipant[] participants;
-    private int queueId;
-    private String gameType;
 
+    private MatchParticipant[] blueParticipants = new MatchParticipant[5];
+
+    private MatchParticipant[] redParticipants = new MatchParticipant[5];
+    private int queueId;
+
+    private String gameType;
     private String gameVersion;
 
     private long gameDuration;
+
     private TeamStats[] teams;
     public DetailedMatch(
             @JsonProperty("gameId") long matchId,
@@ -30,6 +35,22 @@ public class DetailedMatch {
         this.gameDuration = gameDuration;
         this.teams = teams;
         this.gameVersion = gameVersion;
+
+        setParticipantTeam();
+    }
+    private void setParticipantTeam() {
+        int blueCount = 0;
+        int redCount = 0;
+        for (MatchParticipant participant : participants){
+            if (participant.getTeamId()==100){
+                blueParticipants[blueCount]=participant;
+                blueCount++;
+            }
+            else{
+                redParticipants[redCount]=participant;
+                redCount++;
+            }
+        }
     }
 
     public long getMatchId() {
@@ -57,6 +78,10 @@ public class DetailedMatch {
     public MatchParticipant[] getParticipants() {
         return participants;
     }
+
+    public MatchParticipant[] getBlueParticipants() { return blueParticipants; }
+
+    public MatchParticipant[] getRedParticipants() { return redParticipants; }
 
     public MatchParticipant getParticipantFromChampion(int championId) {
         for (MatchParticipant participant :participants){
