@@ -8,12 +8,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class User {
     private String name;
     private String accountId;
-
     private String summonerId;
-
     private int level;
-    private UserRank rank;
+    private UserRank rankedInfo;
     private Match[] recentMatches;
+
     public User(
             @JsonProperty("name") String name,
             @JsonProperty("accountId") String accountId,
@@ -34,20 +33,20 @@ public class User {
         return accountId;
     }
 
-    public String getSummonerId() { return summonerId; }
+    public String getSummonerId() {
+        return summonerId;
+    }
 
     public int getLevel() {
         return level;
     }
 
-    public UserRank getRank() {
-        return rank;
+    public UserRank getRankedInfo() {
+        return rankedInfo;
     }
 
-    public void setSummonerId(String summonerId) { this.summonerId = summonerId; }
-
-    public void setRank(UserRank rank) {
-        this.rank = rank;
+    public void setRankedInfo(UserRank rankedInfo) {
+        this.rankedInfo = rankedInfo;
     }
 
     public Match[] getRecentMatches() {

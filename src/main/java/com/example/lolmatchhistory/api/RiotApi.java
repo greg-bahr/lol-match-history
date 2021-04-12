@@ -13,7 +13,6 @@ import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.Scanner;
 
 public class RiotApi {
@@ -34,7 +33,6 @@ public class RiotApi {
             Scanner myReader = new Scanner(myObj);
             while (myReader.hasNextLine()) {
                 api_key = myReader.nextLine();
-
             }
             myReader.close();
         } catch (FileNotFoundException e) {
@@ -59,21 +57,27 @@ public class RiotApi {
         var response = httpClient.send(request, new JsonBodyHandler<>(User.class));
 
         var user = response.body().get();
-        user.setRank(getUserRankBySummonerId(user.getSummonerId()));
+        user.setRankedInfo(getUserRankBySummonerId(user.getSummonerId()));
         user.setRecentMatches(getLastMatchesByAccountId(user.getAccountId(), 10).getMatches());
 
         return user;
     }
 
     public UserRank getUserRankBySummonerId(String summonerId) throws IOException, InterruptedException {
-        //FIXME the returned response is an array
         var endpoint = "https://na1.api.riotgames.com/lol/league/v4/entries/by-summoner/%s?api_key=%s";
         var request = HttpRequest.newBuilder(URI.create(String.format(endpoint, summonerId, API_KEY)))
                 .header("accept", "application/json")
                 .build();
-        var response = httpClient.send(request, new JsonBodyHandler<>(UserRank.class));
+        var response = httpClient.send(request, new JsonBodyHandler<>(UserRank[].class));
+        UserRank rankInfo = null;
+        for (UserRank league : response.body().get()) {
+            if (league.getQueueType().equals("RANKED_SOLO_5x5")) {
+                rankInfo = league;
+                break;
+            }
+        }
 
-        return response.body().get();
+        return rankInfo;
     }
 
     public MatchHistory getLastMatchesByAccountId(String accountId, int matchCount) throws IOException, InterruptedException {

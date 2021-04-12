@@ -85,11 +85,11 @@ public class Menu {
 
     private void showPlayerDetails() {
         //TODO print player details
-        UserRank rank = user.getRank();
+        UserRank rank = user.getRankedInfo();
         System.out.format("Name: %s%n", user.getName());
         System.out.format("Level: %d%n", user.getLevel());
         System.out.format("%d Wins\t%d Losses %n", rank.getWins(), rank.getLosses());
-        System.out.println(rank.getLeagueId());
+        System.out.format("Rank: %s%n", rank.getTier() + " " + rank.getRank());
         viewProfileOptions();
     }
 
