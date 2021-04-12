@@ -13,6 +13,7 @@ import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 import java.util.Scanner;
 
 public class RiotApi {
@@ -57,9 +58,10 @@ public class RiotApi {
         var response = httpClient.send(request, new JsonBodyHandler<>(User.class));
 
         var user = response.body().get();
-        user.setRankedInfo(getUserRankBySummonerId(user.getSummonerId()));
-        user.setRecentMatches(getLastMatchesByAccountId(user.getAccountId(), 10).getMatches());
-
+        if (!Objects.isNull(user.getName())){
+            user.setRankedInfo(getUserRankBySummonerId(user.getSummonerId()));
+            user.setRecentMatches(getLastMatchesByAccountId(user.getAccountId(), 10).getMatches());
+        }
         return user;
     }
 
@@ -81,7 +83,7 @@ public class RiotApi {
     }
 
     public MatchHistory getLastMatchesByAccountId(String accountId, int matchCount) throws IOException, InterruptedException {
-        var endpoint = "https://na1.api.riotgames.com/lol/match/v4/matchlists/by-account/%s?endIndex=%d&api_key=%s";
+        var endpoint = "https://na1.api.riotgames.com/lol/match/v4/matchlists/by-account/%s?endIndex=%d&queue=420&api_key=%s";
         var request = HttpRequest.newBuilder(URI.create(String.format(endpoint, accountId, matchCount - 1, API_KEY)))
                 .header("accept", "application/json")
                 .build();

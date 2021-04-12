@@ -1,12 +1,16 @@
 package com.example.lolmatchhistory;
 
 import com.example.lolmatchhistory.api.RiotApi;
+import com.example.lolmatchhistory.api.match.DetailedMatch;
+import com.example.lolmatchhistory.api.match.Match;
 import com.example.lolmatchhistory.api.user.User;
 import com.example.lolmatchhistory.api.user.UserRank;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Objects;
 
 public class Menu {
@@ -17,7 +21,7 @@ public class Menu {
         System.out.println("0. Exit\n");
 
         try {
-            int userInput = Integer.parseInt(inputOutput("Please press an appropriate number option."));
+            int userInput = Integer.parseInt(inputOutput("Please press an appropriate number option: "));
             if (userInput >= 0 && userInput <=1) {
                 if (userInput == 1) findPlayer();
                 if (userInput == 0) System.exit(0);
@@ -80,17 +84,40 @@ public class Menu {
 
     private void showMatchHistory() {
         //TODO print match history
+        for (Match match : user.getRecentMatches()){
+            DetailedMatch detailedMatch = match.getDetailedMatch();
+            System.out.format("%10s\tDuration: %5s\tChampion: %5d%n",
+                    getDateFromTimestamp(match.getTimestamp()),
+                    getMinuteFromSecond(detailedMatch.getGameDuration()),
+                    match.getChampion());
+        }
         viewProfileOptions();
     }
 
     private void showPlayerDetails() {
-        //TODO print player details
         UserRank rank = user.getRankedInfo();
         System.out.format("Name: %s%n", user.getName());
         System.out.format("Level: %d%n", user.getLevel());
-        System.out.format("%d Wins\t%d Losses %n", rank.getWins(), rank.getLosses());
-        System.out.format("Rank: %s%n", rank.getTier() + " " + rank.getRank());
+        if (Objects.isNull(rank)){
+            System.out.println("No Rank information found.");
+        }
+        else{
+            System.out.format("%d Wins\t%d Losses %n", rank.getWins(), rank.getLosses());
+            System.out.format("Rank: %s %s %d LP%n", rank.getTier(), rank.getRank(), rank.getLeaguePoints());
+        }
         viewProfileOptions();
+    }
+
+    private String getMinuteFromSecond(long time) {
+        long seconds = time%60;
+        long minutes = time/60;
+        return String.format("%sm %ss", minutes, seconds);
+    }
+
+    private String getDateFromTimestamp(long timestamp) {
+        Date date = new Date(timestamp);
+        SimpleDateFormat jdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        return jdf.format(date);
     }
 
     private String inputOutput(String message) {
