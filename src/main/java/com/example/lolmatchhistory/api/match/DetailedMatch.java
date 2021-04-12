@@ -9,15 +9,18 @@ public class DetailedMatch {
     private MatchParticipant[] participants;
     private int queueId;
     private String gameType;
+
+    private String gameVersion;
+
     private long gameDuration;
     private TeamStats[] teams;
-
     public DetailedMatch(
             @JsonProperty("gameId") long matchId,
             @JsonProperty("participants") MatchParticipant[] participants,
             @JsonProperty("queueId") int queueId,
             @JsonProperty("gameType") String gameType,
             @JsonProperty("gameDuration") long gameDuration,
+            @JsonProperty("gameVersion") String gameVersion,
             @JsonProperty("teams") TeamStats[] teams
     ) {
         this.matchId = matchId;
@@ -26,6 +29,7 @@ public class DetailedMatch {
         this.gameType = gameType;
         this.gameDuration = gameDuration;
         this.teams = teams;
+        this.gameVersion = gameVersion;
     }
 
     public long getMatchId() {
@@ -35,6 +39,8 @@ public class DetailedMatch {
     public int getQueueId() {
         return queueId;
     }
+
+    public String getGameVersion() { return gameVersion; }
 
     public String getGameType() {
         return gameType;
@@ -50,5 +56,14 @@ public class DetailedMatch {
 
     public MatchParticipant[] getParticipants() {
         return participants;
+    }
+
+    public MatchParticipant getParticipantFromChampion(int championId) {
+        for (MatchParticipant participant :participants){
+            if (participant.getChampionId()==championId){
+                return participant;
+            }
+        }
+        return null;
     }
 }

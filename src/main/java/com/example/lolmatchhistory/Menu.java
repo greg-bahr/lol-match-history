@@ -3,6 +3,7 @@ package com.example.lolmatchhistory;
 import com.example.lolmatchhistory.api.RiotApi;
 import com.example.lolmatchhistory.api.match.DetailedMatch;
 import com.example.lolmatchhistory.api.match.Match;
+import com.example.lolmatchhistory.api.match.MatchParticipantStats;
 import com.example.lolmatchhistory.api.user.User;
 import com.example.lolmatchhistory.api.user.UserRank;
 
@@ -15,7 +16,11 @@ import java.util.Objects;
 
 public class Menu {
     private User user;
+    private RiotApi api;
 
+    public Menu() {
+        api = RiotApi.getInstance();
+    }
     public void mainMenu(){
         System.out.println("1. Find Player");
         System.out.println("0. Exit\n");
@@ -83,13 +88,18 @@ public class Menu {
     }
 
     private void showMatchHistory() {
-        //TODO print match history
+        System.out.format("%16s %8s %15s %8s %10s%n",
+                "Date","Status","Champion","K/D/A", "Duration");
         for (Match match : user.getRecentMatches()){
             DetailedMatch detailedMatch = match.getDetailedMatch();
-            System.out.format("%10s\tDuration: %5s\tChampion: %5d%n",
-                    getDateFromTimestamp(match.getTimestamp()),
-                    getMinuteFromSecond(detailedMatch.getGameDuration()),
-                    match.getChampion());
+
+            MatchParticipantStats playerStat = match.getParticipant().getStats();
+            String gameStatus = (playerStat.isWin()) ? "Won" : "Lost";
+
+            System.out.format("%16s %8s %15s %8s %10s%n",
+                    getDateFromTimestamp(match.getTimestamp()), gameStatus,
+                    api.getChampions().get(String.valueOf(match.getChampion())), playerStat.getKDA(),
+                    getMinuteFromSecond(detailedMatch.getGameDuration()));
         }
         viewProfileOptions();
     }

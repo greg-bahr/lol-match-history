@@ -86,4 +86,8 @@ public class MatchParticipantStats {
     public boolean isFirstBloodKill() {
         return firstBloodKill;
     }
+
+    public String getKDA() {
+        return String.format("%s/%s/%s", kills, deaths, assists);
+    }
 }

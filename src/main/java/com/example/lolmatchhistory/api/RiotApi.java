@@ -4,6 +4,7 @@ import com.example.lolmatchhistory.api.match.DetailedMatch;
 import com.example.lolmatchhistory.api.match.MatchHistory;
 import com.example.lolmatchhistory.api.user.User;
 import com.example.lolmatchhistory.api.user.UserRank;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -13,18 +14,57 @@ import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Objects;
 import java.util.Scanner;
+
+import static com.example.lolmatchhistory.api.JsonReader.readJsonFromUrl;
 
 public class RiotApi {
     private static RiotApi instance;
 
     private final HttpClient httpClient;
-    private String API_KEY;
+    private final String latestPatch;
 
+    private HashMap<String, String> champions;
+
+    private final String API_KEY;
     private RiotApi() {
         httpClient = HttpClient.newHttpClient();
         API_KEY = getKeyFromFile("api_key.txt");
+        latestPatch = getPatch();
+        champions = generateChampionsMap();
+    }
+
+    public HashMap<String, String> generateChampionsMap(){
+        HashMap<String, String> champions = new HashMap<>();
+        JSONObject json = null;
+        try {
+            String url = String.format("http://ddragon.leagueoflegends.com/cdn/%s/data/en_US/champion.json", latestPatch);
+            json = readJsonFromUrl(url);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        json = (JSONObject) json.get("data");
+        Iterator<String> keys = json.keys();
+        while(keys.hasNext()) {
+            String championName = keys.next();
+            JSONObject championDetails = (JSONObject) json.get(championName);
+            champions.put((String) championDetails.get("key"), championName);
+        }
+
+        return champions;
+    }
+
+    private String getPatch(){
+        String patch="";
+        try {
+            patch = (String) readJsonFromUrl("https://ddragon.leagueoflegends.com/realms/na.json").get("v");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return patch;
     }
 
     private String getKeyFromFile(String fileName) {
@@ -43,7 +83,7 @@ public class RiotApi {
         return api_key;
     }
 
-    public static RiotApi getInstance() {
+    public static RiotApi getInstance(){
         if (instance == null) {
             instance = new RiotApi();
         }
@@ -60,7 +100,7 @@ public class RiotApi {
         var user = response.body().get();
         if (!Objects.isNull(user.getName())){
             user.setRankedInfo(getUserRankBySummonerId(user.getSummonerId()));
-            user.setRecentMatches(getLastMatchesByAccountId(user.getAccountId(), 10).getMatches());
+            user.setRecentMatches(getLastMatchesByAccountId(user.getAccountId(), 11).getMatches());
         }
         return user;
     }
@@ -105,4 +145,8 @@ public class RiotApi {
     private String encodeStringURL(String s) {
         return URLEncoder.encode(s, StandardCharsets.UTF_8);
     }
+
+    public String getLatestPatch() { return latestPatch; }
+
+    public HashMap<String, String> getChampions() { return champions; }
 }

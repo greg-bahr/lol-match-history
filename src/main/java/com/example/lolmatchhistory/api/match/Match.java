@@ -9,13 +9,15 @@ import java.io.IOException;
 // Not a lot of match data, for more detailed match data use DetailedMatch
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Match {
-    private long matchId;
-    private String role;
-    private String lane;
-    private int champion;
-    private long timestamp;
+    private final long matchId;
+    private final String role;
+    private final String lane;
+    private final int champion;
+    private final long timestamp;
 
     private DetailedMatch detailedMatch;
+
+    private MatchParticipant participant;
 
     public Match(
             @JsonProperty("gameId") long matchId,
@@ -30,9 +32,12 @@ public class Match {
         this.champion = champion;
         this.timestamp = timestamp;
         this.detailedMatch = RiotApi.getInstance().getDetailedMatchByMatchId(matchId);
+        this.participant = this.detailedMatch.getParticipantFromChampion(champion);
     }
 
     public DetailedMatch getDetailedMatch() { return detailedMatch; }
+
+    public MatchParticipant getParticipant() { return participant; }
 
     public long getMatchId() {
         return matchId;
