@@ -150,9 +150,10 @@ public class Menu {
     }
 
     private void showMatchHistory() {
-        String stringFormat = "%16s %8s %15s %8s %10s%n";
+        String stringFormat = "%3s %16s %8s %15s %8s %10s%n";
         System.out.format(stringFormat,
-                "Date","Status","Champion","K/D/A", "Duration");
+                "","Date","Status","Champion","K/D/A", "Duration");
+        int i=1;
         for (Match match : user.getRecentMatches()){
             DetailedMatch detailedMatch = match.getDetailedMatch();
 
@@ -160,9 +161,10 @@ public class Menu {
             String gameStatus = (playerStat.isWin()) ? "Won" : "Lost";
 
             System.out.format(stringFormat,
-                    getDateFromTimestamp(match.getTimestamp()), gameStatus,
+                    i, getDateFromTimestamp(match.getTimestamp()), gameStatus,
                     api.getChampionFromId(match.getChampion()), playerStat.getKDA(),
                     getMinuteFromSecond(detailedMatch.getGameDuration()));
+            i+=1;
         }
         viewProfileOptions();
     }
