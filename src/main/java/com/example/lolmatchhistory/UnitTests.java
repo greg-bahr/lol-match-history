@@ -115,6 +115,13 @@ public class UnitTests {
     }
 
     @Test
+    public void getsNoMatchesForFakeId() throws IOException, InterruptedException {
+        MatchHistory matchHistory = api.getLastMatchesByAccountId("123", 11);
+
+        assertNull(matchHistory.getMatches());
+    }
+
+    @Test
     public void getsDetailedMatchInformation() throws IOException, InterruptedException {
         User user = api.getUserByUsername("grefory");
         MatchHistory matchHistory = api.getLastMatchesByAccountId(user.getAccountId(), 11);
