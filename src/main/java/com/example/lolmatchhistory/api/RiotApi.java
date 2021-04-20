@@ -122,9 +122,9 @@ public class RiotApi {
         return rankInfo;
     }
 
-    public MatchHistory getLastMatchesByAccountId(String accountId, int matchCount) throws IOException, InterruptedException {
+    public MatchHistory getLastMatchesByAccountId(String accountId, int endIndex) throws IOException, InterruptedException {
         var endpoint = "https://na1.api.riotgames.com/lol/match/v4/matchlists/by-account/%s?endIndex=%d&queue=420&api_key=%s";
-        var request = HttpRequest.newBuilder(URI.create(String.format(endpoint, accountId, matchCount - 1, API_KEY)))
+        var request = HttpRequest.newBuilder(URI.create(String.format(endpoint, accountId, endIndex - 1, API_KEY)))
                 .header("accept", "application/json")
                 .build();
         var response = httpClient.send(request, new JsonBodyHandler<>(MatchHistory.class));
