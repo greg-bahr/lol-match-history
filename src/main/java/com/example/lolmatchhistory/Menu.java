@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.Objects;
 
 public class Menu {
-    private User user;
+    User user;
     private final RiotApi api;
 
     public Menu() {
@@ -59,11 +59,7 @@ public class Menu {
     private void viewProfileOptions() {
         try{
             printDashLine();
-            System.out.println("Profile for " + user.getName());
-            System.out.println("1. Show player details");
-            System.out.println("2. Show match history");
-            System.out.println("3. View a match");
-            System.out.println("0. Go back");
+            System.out.print(getProfileOptionsText(user.getName()));
             printDashLine();
             int userInput = Integer.parseInt(inputOutput("Please press an appropriate number option."));
             if (userInput >= 0 && userInput <=3) {
@@ -81,13 +77,23 @@ public class Menu {
         }
     }
 
+    public String getProfileOptionsText(String userName) {
+        return String.format("""
+                Profile for %s
+                1. Show player details
+                2. Show match history
+                3. View a match
+                0. Go back
+                """, userName);
+    }
+
     private void showOneMatchMenu() {
         int numRecentMatch = user.getRecentMatches().length;
-        try{
+        try {
             System.out.format("1 - %s. Choose a match %n", numRecentMatch);
             System.out.println("0. Go back");
             int userInput = Integer.parseInt(inputOutput("Please press an appropriate number option."));
-            if (userInput >= 0 && userInput <=numRecentMatch) {
+            if (userInput >= 0 && userInput <= numRecentMatch) {
                 if (userInput == 0)
                     viewProfileOptions();
                 else{
@@ -135,57 +141,80 @@ public class Menu {
         for (MatchParticipant participant : participants){
             MatchParticipantStats stats = participant.getStats();
 
-            String championName =api.getChampionFromId(participant.getChampionId());
+            String championName = api.getChampionFromId(participant.getChampionId());
             if (playerChampionId==participant.getChampionId()){
                 championName += "(you)";
             }
-            System.out.format("%12s %15s %8s %8s %10s %5s %5s%n", "",
-                    championName,
+            System.out.print(getMatchParticipantText(championName,
                     stats.getKDA(),
                     stats.getGoldEarned(),
                     stats.getTotalDamageDealt(),
                     stats.getTotalMinionsKilled(),
-                    stats.getVisionScore());
+                    stats.getVisionScore()));
         }
+    }
+
+    public String getMatchParticipantText(String championName, String kda, int goldEarned, long totalDamageDealt, int minionsKilled, long visionScore) {
+        return String.format("%12s %15s %8s %8s %10s %5s %5s%n", "",
+                championName,
+                kda,
+                goldEarned,
+                totalDamageDealt,
+                minionsKilled,
+                visionScore);
     }
 
     private void showMatchHistory() {
         String stringFormat = "%3s %16s %8s %15s %8s %10s%n";
-        System.out.format(stringFormat,
-                "","Date","Status","Champion","K/D/A", "Duration");
-        int i=1;
-        for (Match match : user.getRecentMatches()){
+        System.out.format(stringFormat, "", "Date", "Status", "Champion", "K/D/A", "Duration");
+        int i = 1;
+        for (Match match : user.getRecentMatches()) {
             DetailedMatch detailedMatch = match.getDetailedMatch();
 
             MatchParticipantStats playerStat = match.getPlayer().getStats();
             String gameStatus = (playerStat.isWin()) ? "Won" : "Lost";
-
-            System.out.format(stringFormat,
-                    i, getDateFromTimestamp(match.getTimestamp()), gameStatus,
-                    api.getChampionFromId(match.getChampion()), playerStat.getKDA(),
+            String line = getMatchHistoryLine(
+                    getDateFromTimestamp(match.getTimestamp()),
+                    gameStatus,
+                    api.getChampionFromId(match.getChampion()),
+                    playerStat.getKDA(),
                     getMinuteFromSecond(detailedMatch.getGameDuration()));
-            i+=1;
+
+            System.out.format("%3s %s", i, line);
+            i += 1;
         }
         viewProfileOptions();
+    }
+
+    public String getMatchHistoryLine(String date, String gameStatus, String champion, String kda, String minutes) {
+        return String.format("%16s %8s %15s %8s %10s%n", date, gameStatus, champion, kda, minutes);
     }
 
     private void showPlayerDetails() {
-        UserRank rank = user.getRankedInfo();
-        System.out.format("Name: %s%n", user.getName());
-        System.out.format("Level: %d%n", user.getLevel());
-        if (Objects.isNull(rank)){
-            System.out.println("No Rank information found.");
-        }
-        else{
-            System.out.format("%d Wins\t%d Losses %n", rank.getWins(), rank.getLosses());
-            System.out.format("Rank: %s %s %d LP%n", rank.getTier(), rank.getRank(), rank.getLeaguePoints());
-        }
+        System.out.println(getPlayerDetailsText(user.getName(), user.getLevel()));
+        System.out.println(getPlayerRankText(user.getRankedInfo()));
         viewProfileOptions();
     }
 
+    public String getPlayerDetailsText(String name, int level) {
+        return String.format("""
+                Name: %s
+                Level: %d""", name, level);
+    }
+
+    public String getPlayerRankText(UserRank rank) {
+        if (rank == null) {
+            return "No Rank information found.\n";
+        }
+        return String.format("""
+                        %d Wins\t%d Losses
+                        Rank: %s %s %d LP""",
+                rank.getWins(), rank.getLosses(), rank.getTier(), rank.getRank(), rank.getLeaguePoints());
+    }
+
     private String getMinuteFromSecond(long time) {
-        long seconds = time%60;
-        long minutes = time/60;
+        long seconds = time % 60;
+        long minutes = time / 60;
         return String.format("%sm %ss", minutes, seconds);
     }
 
